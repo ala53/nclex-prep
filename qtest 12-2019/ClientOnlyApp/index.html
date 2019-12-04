@@ -1,0 +1,111 @@
+<html>
+
+<head>
+    <title>Testing Home</title>
+</head>
+
+<body style="width:80%;margin-left:10%;margin-right:10%">
+    <div name="placeholder" style="height:50px"></div>
+    <!--Sign in page-->
+    <!--<div id="sign_in_page">
+        <h1>NCLEX Question Testing</h1>
+        <h2>Please sign in with a username</h2>
+        <h3>No password is needed and no personal information is stored. However, you should choose a unique username as test
+            results are available to you and it may get confusing to share an account with someone else. Any username which
+            does not log in at least every 30 days will have all results deleted.</h3>
+        <input type="text" id="username_box" placeholder="Enter username"></input>
+        <button id="sign_in" onclick="signinpage_signin()">Sign in</button>
+        <h3 style="color:red" id="signin_page_warning"></h3>
+    </div>-->
+
+
+    <!--Home page-->
+    <div id="home_screen_page" style="visibility:visible">
+        <h1>NCLEX Question Testing</h1>
+        <h2 id="status_label">Downloading Question Database...</h2>
+        <h3>If the question database never downloads, please press SHIFT+F5 to refresh the page and try again</h3>
+        <button id="start_test" style="visibility: hidden" onclick="startTestBtn()">Start Test</button>
+        <h3>What is this?</h3>
+        <h5>This is an automated testing system. It pulls all of its questions from two websites:
+            <a href='https://nurselabs.com'>NurseLabs</a> and
+            <a href='https://currentnursing.com'>CurrentNursing</a>. As questions are pulled in an automated fashion, there may be a small number of questions
+            that the computer misreads and either do not show up correctly or have an incorrect answer.
+            <b>This should be rare</b>, but please just continue to the next question if it happens.</h5>
+        <ul>
+            <li>
+                <input type="checkbox" id="adaptive_test" onclick="adaptiveTestQs()" checked>
+                <b>Adaptive test</b>: the system will give you progressively more questions in any categories you answer questions
+                wrong. After at least 3 questions in any major category are answered, the computer
+                will continually reanalyze your failure rate. If your failure rate is below 20 percent, the system will reduce
+                the number of future questions from that category to a minimum. As your failure rate trends up, the system will
+                increase the number of questions from that category on a ramp proportional to your failure rate. As more questions from 
+                thst major category are answered, the system will perform the same failure analysis for each subcategory under it.
+            </input>
+            </li>
+            <li>
+                <input type="checkbox" id="only_rationale" onclick="rationaleOnlyQs()">
+                <b>Only with rationale</b>: many questions in the system do not have rationales attached to them. Only with
+                rationale reduces the number of available questions to only show those with a rationale</input>
+            </li>
+            <li>
+                <input type="checkbox" id="show_answers" onclick="showAnswerQs()" checked>
+                <b>Show answer</b>: shows the answer to questions immediately, rather than waiting for you to finish the exam
+                before showing results</input>
+            </li>
+            <!--<li>
+                <input type="checkbox" onclick="hideSeenQs()" id="hide_seen">
+                <b>Hide already seen</b>: if you have already seen a question in a previous exam under your username, it will
+                hide the question.</input>
+            </li>-->
+        </ul>
+        <h4>Previous Tests You've Taken:</h4>
+        <ul id="prevTestList"></ul>
+        
+        <h5>Below that you will find a list major and minor categories. Each checkbox is a category of questions to include on
+            the test. In parentheses is the number of questions in that category. I've included some sensible basics. </h5>
+
+        <ul id="category_list"></ul>
+
+        <h5>The usual disclaimers apply. I am not responsible for anything that goes wrong if you use this program. Information
+            accuracy is not guaranteed, nor is the quality and access of this program. For more details, please read the
+            <a href="https://opensource.org/licenses/MIT">MIT License</a>, which this program is under. Please note that the questions are from third party sources and
+            are
+            <b>not</b> my content and may be under their own licenses.
+        </h5>
+    </div>
+
+    <!--Actual Test Screen-->
+    <div id="test_screen" style="visibility:hidden">
+
+        <h1 id="question_text">TEST QUESTION</h1>
+        <ul id="answer_list"></ul>
+        <button id="next_question_btn" style="margin-top:50px" onclick="onNextQuestionButtonPress()">Submit Answer</button>
+        <h3 id="rationale">RATIONALE</h3>
+        <br/><br/><br/><br/><a id="source_url">Click to be linked to the source of the question</a>
+
+        
+        <h3 id="test_status" style="position:fixed;bottom:2%;left:2%;">TEST STATUS</h3>
+        <button id="end_test_btn" style="position:fixed;bottom:2%;right:2%;" onClick="endTestButton()">End Test</button>
+            </div>
+    <!--Test Completed Screen-->
+    <div id="test_completed" style="visibility: hidden">
+        <h1>Test Completed</h1>
+        <h3>You got
+            <span id="num_correct">BLANK</span> questions correct.</h3>
+        <button onclick="location.reload()">Start Another Test</button>
+        <h3>By Category:</h3>
+        <ul id="categoryList"></ul>
+        <hr/>
+        <h3>By Question:</h3>
+        <div id="answerDiv"></div>
+    </div>
+</body>
+
+
+
+<!--Scripts at the end so the html is there for us-->
+<script src="signinscript.js"></script>
+<script src="homescript.js"></script>
+<script src="testscript.js"></script>
+
+</html>

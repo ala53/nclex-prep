@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="csvparser" Version="0.5.2" />
+    <PackageReference Include="htmlagilitypack.netcore" Version="1.5.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="system.threading.tasks" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>
