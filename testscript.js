@@ -246,7 +246,7 @@ function renderQuestion(question) {
 }
 
 var isOnRationaleScreen = false;
-function onNextQuestionButtonPress() {
+function onNextQuestionButtonPress(isRecurse) {
     if (isOnRationaleScreen) {
         isOnRationaleScreen = false;
         document.getElementById("next_question_btn").innerText = "Submit Answer";
@@ -321,6 +321,10 @@ function onNextQuestionButtonPress() {
 
     //Save the current test to localstorage as in progress
     saveTest(false);
+
+    //Skip to next question if no show answer mode
+    if (!showAnswer && !isRecurse)
+        onNextQuestionButtonPress(true);
 }
 
 function saveTest(completed) {
