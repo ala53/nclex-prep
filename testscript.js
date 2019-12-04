@@ -4,10 +4,12 @@ var numCorrect = 0;
 var answerDOMElements = [];
 var currentQuestion = null;
 var orderedHistoryArray = [];
+var testId = "TEST_" + Math.random();
 
 function startTest() {
     //Mark questions active
     markQuestionsActive();
+    recomputeLists();
     //Choose a random category and question to start with
     chooseQuestion();
 
@@ -154,9 +156,17 @@ function recomputeLists() {
                 child.alive = true;
                 livingCatCount++;
             }
+            else {
+                child.alive = false;
+                //child.completed = true;
+            }
         })
         if (livingCatCount > 0) {
             cat.alive = true;
+        }
+        else {
+            cat.alive = false;
+            //cat.completed = true;
         }
     })
 
@@ -305,6 +315,48 @@ function onNextQuestionButtonPress() {
         currentQuestion.parent.parent.correctQCount++;
     }
     orderedHistoryArray.push(currentQuestion);
+
+    //Save the current test to localstorage as in progress
+    saveTest(false);
+}
+
+function saveTest(completed) {
+    var CompletedQs = [];
+    orderedHistoryArray.forEach(element => {
+        CompletedQs.push({
+            id: element.QuestionId,
+            wasCorrect: element.wasCorrect,
+            chosenAnswers: element.chosenAnswers
+        });
+    });
+
+    //Scan for active categories
+    var activeCats = {};
+    categories.forEach(cat => {
+        activeCats[cat.name] = {};
+        cat.children.forEach(sub => {
+            if (sub.active) {
+                if (activeCats[cat.name] == undefined)
+                    activeCats[cat.name] = {};
+                activeCats[cat.name][sub.name] = true;
+            }
+        })
+    })
+
+    var dbItem = {
+        questions: CompletedQs,
+        id: testId,
+        questionCount: orderedHistoryArray.length,
+        correct: numCorrect,
+        time: new Date(),
+        completed: completed,
+        activeCategories: activeCats,
+        showAnswer: showAnswer,
+        rationaleOnly: rationaleOnly,
+        adaptiveTest: adaptiveTest
+    };
+
+    localStorage.setItem(testId, JSON.stringify(dbItem));
 }
 
 function shuffleArray(array) {
@@ -330,21 +382,49 @@ function arrayRandom(items) {
     return items[Math.floor(Math.random() * items.length)];
 }
 
-function endTestButton() {
-    if (confirm("Are you sure you want to end the test?")) {
+function endTestButton(skipWarn) {
+    if (skipWarn || confirm("Are you sure you want to end the test?")) {
+        //Save the test as completed
+        saveTest(true);
+
         document.getElementById("test_screen").remove();
         document.getElementById("test_completed").style = "";
+
+        window.scrollTo(0, 0);
         var qc = orderedHistoryArray.length;
         if (qc == 0)
             document.getElementById("num_correct").innerText = "0";
         else
             document.getElementById("num_correct").innerText = (((numCorrect / qc) * 100).toFixed(1)) + "%. " + numCorrect + "/" + qc;
 
+        //Render by category
+        var catList = document.getElementById("categoryList");
+        categories.forEach(cat => {
+            if (cat.completedQCount <= 0 || cat.completedQCount == undefined) return;
+            var liItm = document.createElement("li");
+            var labelItm = document.createElement("div");
+            var pc = ((cat.correctQCount / cat.completedQCount) * 100).toFixed(1);
+            labelItm.innerText = cat.name + ": " + pc + "%. " + cat.correctQCount + "/" + cat.completedQCount + " correct";
+            var ulItm = document.createElement("ul");
+            liItm.appendChild(labelItm);
+            liItm.appendChild(ulItm);
+            cat.children.forEach(subCat => {
+                if (subCat.completedQCount <= 0 || subCat.completedQCount == undefined) return;
+                var subLi = document.createElement("li");
+                var percent = ((subCat.correctQCount / subCat.completedQCount) * 100).toFixed(1);
+                subLi.innerText = subCat.name + ": " + percent + "%. " + subCat.correctQCount + "/" + subCat.completedQCount + " correct";
+                ulItm.appendChild(subLi);
+            });
+
+            catList.appendChild(liItm);
+        });
+
+        //Render all questions/answers
         var ansDiv = document.getElementById(answerDiv);
         //Print all questions
 
         orderedHistoryArray.forEach(question => {
-            console.log(question);
+            //console.log(question);
             var div = document.createElement("div");
             //Print the question
             var qq = document.createElement("h4");
@@ -401,7 +481,10 @@ function markQuestionsActive() {
                 if (false) return; //TODO check if already seen
                 if (question.Rationale.length < 1 && rationaleOnly) return; //Skip non rationale when rationale-only mode is on
                 if (!subCat.active) return; //Skip inactive subcategories
-                question.alive = true;
+                if (question.completed)
+                    question.alive = false;
+                else
+                    question.alive = true;
                 question.parent = subCat;
                 qCount++;
                 scQcount++;
@@ -411,8 +494,10 @@ function markQuestionsActive() {
                 subCatNames.push(subCat.name);
                 //Track # of completed questions
                 subCat.questionCount = scQcount;
-                subCat.completedQCount = 0;
-                subCat.correctQCount = 0;
+                if (subCat.completedQCount == undefined)
+                    subCat.completedQCount = 0;
+                if (subCat.correctQCount == undefined)
+                    subCat.correctQCount = 0;
                 subCat.alive = true;
             }
         })
@@ -423,8 +508,10 @@ function markQuestionsActive() {
             categoryNames.push(cat.name);
             cat.alive = true;
             cat.questionCount = qCount;
-            cat.completedQCount = 0;
-            cat.correctQCount = 0;
+            if(cat.completedQCount == undefined) {
+                cat.completedQCount = 0;
+                cat.correctQCount = 0;
+            }
         }
     })
 

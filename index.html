@@ -58,6 +58,9 @@
                 hide the question.</input>
             </li>-->
         </ul>
+        <h4>Previous Tests You've Taken:</h4>
+        <ul id="prevTestList"></ul>
+        
         <h5>Below that you will find a list major and minor categories. Each checkbox is a category of questions to include on
             the test. In parentheses is the number of questions in that category. I've included some sensible basics. </h5>
 
@@ -90,6 +93,10 @@
         <h3>You got
             <span id="num_correct">BLANK</span> questions correct.</h3>
         <button onclick="location.reload()">Start Another Test</button>
+        <h3>By Category:</h3>
+        <ul id="categoryList"></ul>
+        <hr/>
+        <h3>By Question:</h3>
         <div id="answerDiv"></div>
     </div>
 </body>

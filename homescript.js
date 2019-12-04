@@ -298,4 +298,102 @@ function generateCheckboxes() {
     recomputeQuestionCount();
 }
 
+function retreivePreviousTests() {
+    var entries = Object.entries(localStorage);
+    var ulElem = document.getElementById("prevTestList");
+    if (entries.length == 0) {
+        ulElem.innerText = "No previous tests taken";
+        return;
+    }
+    //Otherwise, parse each one
+    entries.forEach(entry => {
+        var key = entry[0];
+        var val = entry[1];
+        var obj = JSON.parse(val);
+        obj.time = new Date(obj.time);
+        var li = document.createElement("li");
+        var h5 = document.createElement("span");
+        var buttonContinue = document.createElement("button");
+        buttonContinue.innerText = "Continue Test";
+        var buttonViewResults = document.createElement("button");
+        buttonViewResults.innerText = "View Results";
+        buttonViewResults.style = "margin-left:5px;"
+        li.appendChild(h5);
+        li.appendChild(buttonContinue);
+        li.appendChild(buttonViewResults);
+        ulElem.appendChild(li);
+        h5.innerText = obj.correct + "/" + obj.questionCount + " questions correct, saved " + obj.time.toLocaleDateString() + " " + obj.time.toLocaleTimeString() + " ";
+        var rebuildState = function () {
+            //Build the question hashset
+            var hashes = {};
+            obj.questions.forEach(q => {
+                hashes[q.id] = q;
+            });
+            //Load the test and then call the end test button function
+            numCorrect = obj.correct;
+            questionCount = obj.questionCount;
+            orderedHistoryArray = [];
+            testId = key;
+            adaptiveTest = obj.adaptiveTest;
+            showAnswer = obj.showAnswer;
+            rationaleOnly = obj.rationaleOnly;
+            //Mark the completed questions, in order by scanning ALL questions
+            categories.forEach(cat => {
+                cat.completedQCount = 0;
+                cat.correctQCount = 0;
+
+                var activeCat = obj.activeCategories[cat.name];
+                if (activeCat != undefined) {
+                    cat.active = true;
+                }
+
+                cat.children.forEach(subCat => {
+                    subCat.completedQCount = 0;
+                    subCat.correctQCount = 0;
+                    //Mark active
+                    if (activeCat != undefined) {
+                        if (activeCat[subCat.name != undefined]) {
+                            subCat.active = true;
+                        }
+                    }
+                    subCat.questions.forEach(q => {
+                        if (hashes[q.QuestionId] != undefined) {
+                            var qInfo = hashes[q.QuestionId];
+                            q.wasCorrect = qInfo.wasCorrect;
+                            q.completed = true;
+                            q.alive = false;
+                            q.chosenAnswers = qInfo.chosenAnswers;
+                            subCat.completedQCount++;
+                            cat.completedQCount++;
+                            cat.active = true;
+                            subCat.active = true;
+                            if (q.wasCorrect) {
+                                cat.correctQCount++;
+                                cat.completedQCount++;
+                            }
+                            //push to history
+                            orderedHistoryArray.push(q);
+                        }
+                    });
+                })
+            });
+        }
+
+        buttonViewResults.onclick = function() {
+            rebuildState();
+
+            //And trigger end test
+            document.getElementById("home_screen_page").remove();
+            document.getElementById("test_screen").style = "";
+            endTestButton(true);
+        }
+
+        buttonContinue.onclick = function() {
+            rebuildState();
+            startTestBtn();
+        }
+    });
+}
+
 downloadDatabase();
+retreivePreviousTests();
