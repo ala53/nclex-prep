@@ -45,6 +45,13 @@ function startTestBtn() {
     startTest();
 }
 
+function clearTestHistory() {
+    if (confirm("Are you sure you want to clear your question history?")) {
+        localStorage.clear();
+        location.reload();
+    }
+}
+
 //Download the database CSV
 function downloadDatabase() {
     xhr = new XMLHttpRequest(),
@@ -379,7 +386,7 @@ function retreivePreviousTests() {
             });
         }
 
-        buttonViewResults.onclick = function() {
+        buttonViewResults.onclick = function () {
             rebuildState();
 
             //And trigger end test
@@ -388,7 +395,7 @@ function retreivePreviousTests() {
             endTestButton(true);
         }
 
-        buttonContinue.onclick = function() {
+        buttonContinue.onclick = function () {
             rebuildState();
             startTestBtn();
         }
