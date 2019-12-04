@@ -273,12 +273,15 @@ function onNextQuestionButtonPress() {
     var chosenAnswers = [];
     var ansNum = 0;
     answerDOMElements.forEach(ans => {
+        if (ans.checked) {
+             chosenAnswers.push(ansNum);
+             //console.log("Q:" + currentQuestion.Question +" A (" + ansNum + "): " + ans.innerText)
+            }
+        ansNum++;
         ans.enabled = false;
-        if (ans.checked) chosenAnswers.push(ansNum);
         if (ans.isCorrectAnswer && ans.checked) return;
         if (!ans.isCorrectAnswer && !ans.checked) return;
         wasCorrect = false;
-        ansNum++;
     });
     //evaluate answers
     answerDOMElements.forEach(ans => {
